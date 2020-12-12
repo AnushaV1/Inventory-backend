@@ -1,0 +1,86 @@
+###
+POST http://localhost:3001/users
+Content-Type: application/json
+
+{
+    "username": "apple",
+    "password": "apple",
+    "firstname":"abcd",
+    "lastname":"qwqeerw",
+    "address": "122 North st",
+    "city":"San Jose",
+    "state":"CA",
+    "zipcode":93920,
+    "country": "USA",
+    "email": "abc@gmail.com"
+}
+
+# {
+#     "username": "Jack",
+#     "password": "Jack",
+#     "firstname":"abcd",
+#     "lastname":"qwqeerw",
+#     "address": "123 North st",
+#     "city":"San Jose",
+#     "state":"CA",
+#     "zipcode":93920,
+#     "country": "USA",
+#     "email": "a1b2c@gmail.com"
+# }
+
+###
+POST http://localhost:3001/login
+Content-Type: application/json
+
+{
+"username": "Anurag",
+"password": "zxcvbn"
+}
+
+###
+GET http://localhost:3001/users/apple
+Content-Type: application/json
+
+{
+"_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjEsInVzZXJuYW1lIjoiYXBwbGUiLCJpYXQiOjE2MDUyNDk1Mjd9.vYoL4ZRaf_6fTeHlNQOJMaJv0exMcg2i8ws6Jhu4-mM"
+}
+
+
+###
+PATCH http://localhost:3001/users/Anurag
+Content-Type: application/json
+
+{
+"password": "zxcvbn",
+"firstname": "Anusha",
+"lastname": "Raghavan",
+"email": "anurag@email.com",
+"_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsInVzZXJuYW1lIjoiQW51cmFnIiwiaWF0IjoxNjA2MTgwMTE5fQ.U6sX4PSjZAIoW8PEmRvp0upGcHjgsumU9WHkkeDzUOg"
+}
+
+###
+https://api.upcitemdb.com/prod/trial/lookup?upc=885909950805
+Content-Type: application/json
+
+###
+POST http://localhost:3001/product/
+Content-Type: application/json
+
+{
+"product_name" : "Apple iphone 6",
+"product_price": 699.99,
+"purchased_at":"Best Buy",
+"purchase_date":"2020-10-05",
+"warranty_period":" 2 years",
+"return_policy": "60 days",
+"manual_link":"",
+"serial_number" : "ABC1234",
+"receipt_image":"http://userproduct.receipt.image.jpg",
+"user_product_image":"http://userproduct.image.jpg", 
+"upc":885909950805,
+"userid": 1,
+"_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjEsInVzZXJuYW1lIjoiYXBwbGUiLCJpYXQiOjE2MDUyNDk1Mjd9.vYoL4ZRaf_6fTeHlNQOJMaJv0exMcg2i8ws6Jhu4-mM"
+}
+
+###
+GET http://localhost:3001/product/
