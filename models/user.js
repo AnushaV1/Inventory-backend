@@ -5,16 +5,10 @@ const ExpressError = require("../helpers/expressError");
 
 const BCRYPT_WORK_FACTOR = 10;
 
-
-/** Related functions for users. */
-
 class User {
 
-  /** authenticate user with username, password. Returns user or throws err. */
-
   static async authenticate(data) {
-    // try to find the user first
-    const result = await db.query(
+      const result = await db.query(
         `SELECT id, 
                 username, 
                 password, 
@@ -32,7 +26,7 @@ class User {
     const user = result.rows[0];
 
     if (user) {
-      // compare hashed password to a new hash from password
+
       const isValid = await bcrypt.compare(data.password, user.password);
       if (isValid) {
         return user;
@@ -40,8 +34,6 @@ class User {
     }
     throw new ExpressError(`Invalid Credentials`, 401)
   }
-
-  /** Register user with data. Returns new user data. */
 
   static async register(data) {
     const duplicateCheck = await db.query(
@@ -78,7 +70,7 @@ class User {
     return result.rows[0];
   }
 
-  /** Given a username, return data about user. */
+
 
   static async findOne(username) {
     const userRes = await db.query(
@@ -95,14 +87,6 @@ class User {
     return user;
   }
 
-  /** Update user data with `data`.
-   *
-   * This is a "partial update" --- it's fine if data doesn't contain
-   * all the fields; this only changes provided ones.
-   *
-   * Return data for changed user.
-   *
-   */
 
   static async update(username, data) {
     if (data.password) {
@@ -129,7 +113,6 @@ class User {
     return result.rows[0];
   }
 
-  /** Delete given user from database; returns undefined. */
 
   static async remove(username) {
       let result = await db.query(

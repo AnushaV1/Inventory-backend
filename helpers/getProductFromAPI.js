@@ -1,5 +1,4 @@
 const axios = require('axios');
-//"885909950805"
 class getProductFromAPI{
 static async getProduct(upc_code) {
     try {

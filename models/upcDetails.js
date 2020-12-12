@@ -32,9 +32,9 @@ class upcDetails {
     }
 
     static async search(upc){
-       // console.log("search upc from model", upc)
+
         const result = await db.query(`SELECT upc_code,title,brand,model,category, image_link,description FROM upc WHERE upc_code=$1`, [upc])
-       // console.log("search result ",result.rows[0])
+
             return result.rows[0];
     }
     

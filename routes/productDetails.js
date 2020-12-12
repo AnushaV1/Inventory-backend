@@ -4,8 +4,6 @@ const ProductDetail = require("../models/ProductDetail");
 const {authRequired} = require("../middleware/auth");
 const multer = require("multer");
 const helpers = require("../helpers/helpers")
-const jwt = require("jsonwebtoken");
-const {SECRET} = require("../config");
 
 router.get("/:userid", authRequired, async function(req, res, next) {
     try {

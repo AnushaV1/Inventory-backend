@@ -4,14 +4,6 @@ const {SECRET} = require("../config");
 const ExpressError = require("../helpers/expressError");
 
 
-/** Middleware to use when they must provide a valid token.
- *
- * Add username onto req as a convenience for view functions.
- *
- * If not, raises Unauthorized.
- *
- */
-
 function authRequired(req, res, next) {
   try {
     const tokenStr = req.body._token || req.query._token;
@@ -26,26 +18,6 @@ function authRequired(req, res, next) {
   }
 }
 
-
-/** Middleware to use when they must provide a valid token that is an admin token.
- *
- * Add username onto req as a convenience for view functions.
- *
- * If not, raises Unauthorized.
- *
- */
-
-
-
-
-/** Middleware to use when they must provide a valid token & be user matching
- *  username provided as route param.
- *
- * Add username onto req as a convenience for view functions.
- *
- * If not, raises Unauthorized.
- *
- */
 
 function ensureCorrectUser(req, res, next) {
   try {

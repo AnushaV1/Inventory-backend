@@ -1,5 +1,3 @@
-/** Routes for users. */
-
 const express = require("express");
 
 const router = express.Router();
@@ -14,9 +12,6 @@ const { userNewSchema, userUpdateSchema } = require("../schemas");
 const createToken = require("../helpers/createToken");
 
 
-
-/** GET /[username] => {user: user} */
-
 router.get("/:username", authRequired, async function(req, res, next) {
   try {
     const user = await User.findOne(req.params.username);
@@ -26,7 +21,6 @@ router.get("/:username", authRequired, async function(req, res, next) {
   }
 });
 
-/** POST / {userdata}  => {token: token} */
 
 router.post("/", async function(req, res, next) {
   try {
@@ -49,12 +43,11 @@ router.post("/", async function(req, res, next) {
   }
 });
 
-/** PATCH /[handle] {userData} => {user: updatedUser} */
+
 
 router.patch("/:username", ensureCorrectUser, async function(req, res, next) {
   try {
     if ("username" in req.body) {
-      //return next({ status: 400, message: "Not allowed" });
       delete req.body.username;
     }
     await User.authenticate({
@@ -78,7 +71,6 @@ router.patch("/:username", ensureCorrectUser, async function(req, res, next) {
   }
 });
 
-/** DELETE /[handle]  =>  {message: "User deleted"}  */
 
 router.delete("/:username", async function(req, res, next) {
   try {
