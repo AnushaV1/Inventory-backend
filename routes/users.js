@@ -55,7 +55,7 @@ router.patch("/:username", ensureCorrectUser, async function(req, res, next) {
       password: req.body.password
     });
     delete req.body.password;
-    delete req.body.confirmPassword
+    delete req.body.confirmPassword;
     const validation = validate(req.body, userUpdateSchema);
     if (!validation.valid) {
       return next({
@@ -72,7 +72,7 @@ router.patch("/:username", ensureCorrectUser, async function(req, res, next) {
 });
 
 
-router.delete("/:username", async function(req, res, next) {
+router.delete("/:username", ensureCorrectUser,async function(req, res, next) {
   try {
     await User.remove(req.params.username);
     return res.json({ message: "User deleted" });

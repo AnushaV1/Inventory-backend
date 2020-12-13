@@ -32,7 +32,9 @@ class User {
         return user;
       }
     }
-    throw new ExpressError(`Invalid Credentials`, 401)
+    const invalidCredentials = new ExpressError('Invalid Credentials');
+		invalidCredentials.status = 401;
+		throw invalidCredentials;
   }
 
   static async register(data) {
@@ -44,7 +46,7 @@ class User {
     );
 
     if (duplicateCheck.rows[0]) {
-      throw new ExpressError(`Username'${data.username}  or ${data.email} already exists!`, 409)
+      throw new ExpressError(`Username ${data.username}  or ${data.email} already exists!`, 409)
     }
 
 
@@ -70,8 +72,6 @@ class User {
     return result.rows[0];
   }
 
-
-
   static async findOne(username) {
     const userRes = await db.query(
         `SELECT username, password, firstname, lastname, address, city, state, country, zipcode, email
@@ -82,7 +82,9 @@ class User {
     const user = userRes.rows[0];
 
     if (!user) {
-      throw new ExpressError(`There exists no user '${username}'`, 404)
+      const err = new ExpressError(`No such user: ${username}`);
+      err.status = 404;
+      throw err;
     }
     return user;
   }

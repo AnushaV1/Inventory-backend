@@ -1,191 +1,162 @@
-// npm packages
 const request = require("supertest");
+process.env.NODE_ENV = "test";
+const app = require('../../app');
+const db = require("../../db");
+const User = require("../../models/user")
+const createToken = require("../../helpers/createToken");
 
-// app imports
-const app = require("../../app");
+let testUser;
+let token;
+beforeEach(async () => {
+	testUser = {
+    username: "testuser1",
+    firstname: "fname1",
+    lastname: "lname1",
+    password: "testuser1",
+    email: "test1@user.com",
+    address: "12 Test address",
+    state: "sample state1",
+    city:"sample city1",
+    zipcode: 11111,
+    country: "USA"
+	};
 
-// model imports
-const User = require("../../models/user");
-
-const {
-  TEST_DATA,
-  afterEachHook,
-  afterAllHook,
-  beforeAllHook,
-  beforeEachHook
-} = require("./config");
-
-
-beforeAll(async function () {
-  await beforeAllHook();
+  const newTestUser = await User.register(testUser);
+  token = createToken(newTestUser);
 });
 
-
-beforeEach(async function () {
-  await beforeEachHook(TEST_DATA);
+afterEach(async () => {
+	await db.query('DELETE FROM users');
 });
 
-
-afterEach(async function () {
-  await afterEachHook();
+afterAll(async () => {
+	await db.end();
 });
 
-
-afterAll(async function () {
-  await afterAllHook();
-});
-
-
-describe("POST /users", async function () {
+describe("POST /users", function () {
   test("Creates a new user", async function () {
     let dataObj = {
-      username: "whiskey",
-      first_name: "Whiskey",
-      password: "foo123",
-      last_name: "Lane",
-      email: "whiskey@rithmschool.com",
-    };
-    const response = await request(app)
-        .post("/users")
-        .send(dataObj);
-    expect(response.statusCode).toBe(201);
+      username: "testuser2",
+      firstname: "fname2",
+      lastname: "lname2",
+      password: "testuser2",
+      email: "test2@user.com",
+      address: "38 Test address",
+      state: "sample state",
+      city:"sample city",
+      zipcode: 11111,
+      country: "USA"
+    }
+
+    const response = await request(app).post("/users/").send(dataObj);
+    expect(response.statusCode).toEqual(201);
     expect(response.body).toHaveProperty("token");
-    const whiskeyInDb = await User.findOne("whiskey");
-    ["username", "first_name", "last_name"].forEach(key => {
-      expect(dataObj[key]).toEqual(whiskeyInDb[key]);
-    });
+  });
+});
+
+describe("POST /users", function () {
+  test("Test error with same username", async function () {
+    testUserNew = {
+      username: "testuser1",
+      firstname: "fname1",
+      lastname: "lname1",
+      password: "testuser1",
+      email: "test1@user.com",
+      address: "12 Test address",
+      state: "sample state1",
+      city:"sample city1",
+      zipcode: 11111,
+      country: "USA"
+    };
+  
+    const response = await request(app).post("/users/").send(testUserNew);
+    expect(response.statusCode).toEqual(409);
+
+  });
+})
+
+describe("GET /users", function () {
+  test("Fetch user with username", async function () {
+
+const newResponse = await request(app).get(`/users/testuser1`).send({ _token: token });
+expect(newResponse.statusCode).toEqual(200);
+  })
+
+  test('get user, unauthorized', async () => {
+      let result = await request(app).get(`/users/testuser1`).send({});
+		expect(result.statusCode).toEqual(401);
+		expect(result.body).toHaveProperty('error', {
+			message: 'You must authenticate first.',
+			status: 401
+		});
+	});
+})
+
+describe('/POST login', () => {
+	test('User Login success', async () => {
+		let result = await request(app).post('/login').send({
+			username: testUser.username,
+			password: testUser.password
+		});
+		expect(result.statusCode).toEqual(200);
+		expect(result.body).toHaveProperty("token");
+	});
+
+
+})
+
+describe('/POST login failure', () => {
+test('Test for user not authenticated ', async () => {
+  let result = await request(app).post('/login').send({
+    username: testUser.username,
+    password: " "
+  });
+	expect(result.statusCode).toEqual(401);
+})
+
+});
+
+describe('PATCH/users/:username', () => {
+	test("Successful patch route", async () => {
+
+		let result = await request(app).patch(`/users/testuser1`).send({
+			firstname: 'changedFirstName',
+			password: testUser.password,
+			_token: token
+		});
+
+		expect(result.statusCode).toEqual(200);
+		expect(result.body.user.firstname).toEqual('changedFirstName');
+	});
+
+	test("edit a user's , schema fail", async () => {
+		let result = await request(app).patch(`/users/testuser1`).send({
+			firstname: 'fakeFirstname',
+			_token: token,
+			password: 'wrong_password'
+		});
+		expect(result.statusCode).toEqual(401);
+	});
+});
+
+
+describe("DELETE /users/:username", () => {
+  test("Delete user if logged in and correct user", async () => {
+      const response = await request(app).delete(`/users/testuser1?_token=${token}`);
+      expect(response.body.message).toBe("User deleted");
   });
 
-  test("Prevents creating a user with duplicate username", async function () {
-    const response = await request(app)
-        .post("/users")
-        .send({
-          username: "test",
-          first_name: "Test",
-          password: "foo123",
-          last_name: "McTester",
-          email: "test@rithmschool.com",
-        });
-    expect(response.statusCode).toBe(409);
+  test("Respond with 401 unauthorized user", async () => {
+    const fakeToken = "123TYU"
+      const response = await request(app).delete(`/users/testuser2?_token=${fakeToken}`);
+      expect(JSON.parse(response.text).message).toBe("Unauthorized, invalid token!")
+
   });
 
-  test("Prevents creating a user without required password field", async function () {
-    const response = await request(app)
-        .post("/users")
-        .send({
-          username: "test",
-          first_name: "Test",
-          last_name: "McTester",
-          email: "test@rithmschool.com"
-        });
-    expect(response.statusCode).toBe(400);
+  test("Responds with 401 error id not found", async () => {
+      const response = await request(app).delete(`/users/notauser?_token=${token}`);
+      expect(response.statusCode).toEqual(401);
   });
 });
 
 
-describe("GET /users", async function () {
-  test("Gets a list of 1 user", async function () {
-    const response = await request(app)
-        .get("/users")
-        .send({_token: `${TEST_DATA.userToken}`});
-    expect(response.body.users).toHaveLength(1);
-    expect(response.body.users[0]).toHaveProperty("username");
-    expect(response.body.users[0]).not.toHaveProperty("password");
-  });
-});
-
-
-describe("GET /users/:username", async function () {
-  test("Gets a single a user", async function () {
-    const response = await request(app)
-        .get(`/users/${TEST_DATA.currentUsername}`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    expect(response.body.user).toHaveProperty("username");
-    expect(response.body.user).not.toHaveProperty("password");
-    expect(response.body.user.username).toBe("test");
-  });
-
-  test("Responds with a 404 if it cannot find the user in question", async function () {
-    const response = await request(app)
-        .get(`/users/yaaasss`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    expect(response.statusCode).toBe(404);
-  });
-});
-
-
-describe("PATCH /users/:username", async () => {
-  test("Updates a single a user's first_name with a selective update", async function () {
-    const response = await request(app)
-        .patch(`/users/${TEST_DATA.currentUsername}`)
-        .send({first_name: "xkcd", _token: `${TEST_DATA.userToken}`});
-    const user = response.body.user;
-    expect(user).toHaveProperty("username");
-    expect(user).not.toHaveProperty("password");
-    expect(user.first_name).toBe("xkcd");
-    expect(user.username).not.toBe(null);
-  });
-
-  test("Updates a single a user's password", async function () {
-    const response = await request(app)
-        .patch(`/users/${TEST_DATA.currentUsername}`)
-        .send({_token: `${TEST_DATA.userToken}`, password: "foo12345"});
-
-    const user = response.body.user;
-    expect(user).toHaveProperty("username");
-    expect(user).not.toHaveProperty("password");
-  });
-
-  test("Prevents a bad user update", async function () {
-    const response = await request(app)
-        .patch(`/users/${TEST_DATA.currentUsername}`)
-        .send({cactus: false, _token: `${TEST_DATA.userToken}`});
-    expect(response.statusCode).toBe(400);
-  });
-
-  test("Forbids a user from editing another user", async function () {
-    const response = await request(app)
-        .patch(`/users/notme`)
-        .send({password: "foo12345", _token: `${TEST_DATA.userToken}`});
-    expect(response.statusCode).toBe(401);
-  });
-
-  test("Responds with a 404 if it cannot find the user in question", async function () {
-    // delete user first
-    await request(app)
-        .delete(`/users/${TEST_DATA.currentUsername}`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    const response = await request(app)
-        .patch(`/users/${TEST_DATA.currentUsername}`)
-        .send({password: "foo12345", _token: `${TEST_DATA.userToken}`});
-    expect(response.statusCode).toBe(404);
-  });
-});
-
-
-describe("DELETE /users/:username", async function () {
-  test("Deletes a single a user", async function () {
-    const response = await request(app)
-        .delete(`/users/${TEST_DATA.currentUsername}`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    expect(response.body).toEqual({message: "User deleted"});
-  });
-
-  test("Forbids a user from deleting another user", async function () {
-    const response = await request(app)
-        .delete(`/users/notme`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    expect(response.statusCode).toBe(401);
-  });
-
-  test("Responds with a 404 if it cannot find the user in question", async function () {
-    // delete user first
-    await request(app)
-        .delete(`/users/${TEST_DATA.currentUsername}`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    const response = await request(app)
-        .delete(`/users/${TEST_DATA.currentUsername}`)
-        .send({_token: `${TEST_DATA.userToken}`});
-    expect(response.statusCode).toBe(404);
-  });
-});
