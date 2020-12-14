@@ -4,6 +4,7 @@ const ProductDetail = require("../models/ProductDetail");
 const {authRequired} = require("../middleware/auth");
 const multer = require("multer");
 const helpers = require("../helpers/helpers")
+const ExpressError = require("../helpers/expressError");
 
 router.get("/:userid", authRequired, async function(req, res, next) {
     try {
@@ -57,25 +58,29 @@ router.get("/:userid", authRequired, async function(req, res, next) {
                 
                 return res.json(productAdded);
             } catch (err) {
+                if (err.code === '23505') {
+                    return next(new ExpressError("Serial number already exists", 400));
+                }
+                
                 return next(err);
             }
     
     })
 
-    router.put("/updateProduct", authRequired, async function(req, res, next) {
-        try {
+    // router.put("/updateProduct", authRequired, async function(req, res, next) {
+    //     try {
 
-            if (req.files) {
-                const image = req.file.filename;
-                updates.image = image;
-            }
+    //         if (req.files) {
+    //             const image = req.file.filename;
+    //             updates.image = image;
+    //         }
         
-            const product = await ProductDetail.updateProduct(req.query.productId,req.body);
-            return res.json({ product });
-        } catch (err) {
-            return next(err);
-        }
-        });
+    //         const product = await ProductDetail.updateProduct(req.query.productId,req.body);
+    //         return res.json({ product });
+    //     } catch (err) {
+    //         return next(err);
+    //     }
+    //     });
 
 
 
@@ -88,7 +93,7 @@ router.patch("/:productId", authRequired, async function(req, res, next) {
     }
 });
 
-router.delete("/:userId/:productId",  async function(req, res, next) {
+router.delete("/:userId/:productId",authRequired,  async function(req, res, next) {
     try {    
         await ProductDetail.deleteSingleProduct(req.params.userId, req.params.productId);
         return res.json({message: "Product deleted"});

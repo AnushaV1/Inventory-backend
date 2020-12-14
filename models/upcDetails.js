@@ -28,7 +28,7 @@ class upcDetails {
         if(product === undefined){
             throw new ExpressError("Empty result");
         }
-        return new upcDetails(product);
+        return result.rows[0];
     }
 
     static async search(upc){

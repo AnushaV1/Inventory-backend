@@ -11,11 +11,13 @@ CREATE TABLE users (id SERIAL PRIMARY KEY,
                     zipcode INT NULL
                     );
 
-CREATE TABLE upc (upc_code INT PRIMARY KEY,
+CREATE TABLE upc (upc_code BIGINT PRIMARY KEY,
+                title TEXT, 
                 brand TEXT NOT NULL,
                 model TEXT NOT NULL,
                 category TEXT NOT NULL,
-                image_link TEXT NOT NULL
+                image_link TEXT NOT NULL, 
+                description TEXT NOT NULL
 );
 
 CREATE TABLE user_product(
@@ -27,10 +29,10 @@ CREATE TABLE user_product(
                     warranty_period TEXT,
                     return_policy TEXT,
                     manual_link TEXT, 
-                    serial_number TEXT,
+                    serial_number UNIQUE TEXT,
                     receipt_image TEXT,
                     user_product_image TEXT,
-                    upc INT,
+                    upc BIGINT,
                     userid INT CONSTRAINT fk_users REFERENCES users ON DELETE CASCADE
                     );
 

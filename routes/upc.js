@@ -5,7 +5,10 @@ const upcDetails = require("../models/upcDetails");
 const {authRequired} = require("../middleware/auth");
 
     router.get("/:upcCode", authRequired,  async function(req, res, next) {
-        try {
+        try {            
+
+            const result = await upcDetails.search(req.params.upcCode) 
+            if (result === undefined) {
             const response = await getProductFromAPI.getProduct(req.params.upcCode);
             if(response !== undefined) {
                 const {upc,brand,model,title,category,images, description } = response
@@ -16,9 +19,12 @@ const {authRequired} = require("../middleware/auth");
             else {
                 return res.status(400).json({message: "No such UPC Code"})
             }
-            
             }
-            catch (err) {
+            else {
+                return res.json({result});
+            }
+            
+        }   catch (err) {
             return next(err);
         }
         });

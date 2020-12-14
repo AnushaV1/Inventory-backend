@@ -56,7 +56,6 @@ class ProductDetail {
             return results.rows;
     }
 
-
     static async addProduct(product_name,product_price,purchased_at,purchase_date,
         warranty_period,return_policy,manual_link,serial_number, receipt_image,
         user_product_image,upc,userid) {
@@ -64,8 +63,7 @@ class ProductDetail {
             if(upc) {
                 const addToUpcTable = addToUpc(upc)
             }
-    
-        const result = await db.query(
+            const result = await db.query(
             `INSERT INTO user_product (
                 product_name,
                 product_price,
@@ -103,7 +101,7 @@ class ProductDetail {
         const result = await db.query(query, values);
     
         if (result.rows.length === 0) {
-            throw new ExpressError(`No such product id '${id}`, 404)
+            throw new ExpressError(`No such product id ${id}`, 404)
         }
     
         return result.rows[0];
@@ -117,7 +115,7 @@ class ProductDetail {
             [userId, productId]);
     
             if (result.rows.length === 0) {
-                throw new ExpressError('No such products', 404)
+                throw new ExpressError('No such user or products', 404)
             }
         
     }
