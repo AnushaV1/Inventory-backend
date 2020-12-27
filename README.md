@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Inventory is a web application for creating an inventory of home electronic utilities like laptop, computer, television etc. for users. 
+Inventory is a web application for creating an inventory of home electronic assets like laptop, computer, television etc. for users. 
 This application comes in handy at the time of disaster or at any other times to claim insurance and to know the value of lost items . 
 
 
